@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dream Mirror</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #0d1b2a, #1b263b, #415a77);
+      color: #fff;
+      text-align: center;
+      padding: 30px;
+    }
+    textarea {
+      width: 80%;
+      height: 120px;
+      margin: 10px 0;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    .perspectives {
+      margin: 20px 0;
+    }
+    .output {
+      margin-top: 30px;
+      padding: 15px;
+      border-radius: 10px;
+      background: #162447;
+      text-align: left;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+      white-space: pre-wrap;
+    }
+    button {
+      background: #e63946;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #d62828;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌙 Dream Mirror</h1>
+  <p>Enter your dream and select the perspectives you want.</p>
+
+  <textarea id="dreamInput" placeholder="Type your dream here..."></textarea>
+
+  <div class="perspectives">
+    <label><input type="checkbox" value="Psychological"> Psychological</label>
+    <label><input type="checkbox" value="Scientific"> Scientific</label>
+    <label><input type="checkbox" value="Hindu Spiritual"> Hindu Spiritual</label>
+    <label><input type="checkbox" value="Mythological"> Mythological</label>
+    <label><input type="checkbox" value="Global Human Perspective"> Global</label>
+  </div>
+
+  <button onclick="interpretDream()">Interpret Dream</button>
+
+  <div class="output" id="outputBox"></div>
+
+  <script>
+    async function interpretDream() {
+      const dream = document.getElementById("dreamInput").value;
+      const perspectives = Array.from(document.querySelectorAll('input[type=checkbox]:checked'))
+                                .map(cb => cb.value);
+
+      document.getElementById("outputBox").innerText = "⏳ Interpreting your dream...";
+
+      const response = await fetch("http://localhost:3000/interpret", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dream, perspectives })
+      });
+
+      const data = await response.json();
+      document.getElementById("outputBox").innerText = data.interpretation;
+    }
+  </script>
+</body>
+</html>
+
+👉 Do you want me to also write the collapsible output version (so each perspective comes in its own toggleable box), or do you want to first test this plain working version end-to-end?
