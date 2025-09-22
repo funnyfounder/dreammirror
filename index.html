@@ -72,19 +72,28 @@
       const perspectives = Array.from(document.querySelectorAll('input[type=checkbox]:checked'))
                                 .map(cb => cb.value);
 
+      if (!dream) {
+        alert("Please type your dream first!");
+        return;
+      }
+
       document.getElementById("outputBox").innerText = "⏳ Interpreting your dream...";
 
-      const response = await fetch("http://localhost:3000/interpret", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ dream, perspectives })
-      });
+      try {
+        const response = await fetch("http://localhost:3000/interpret", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ dream, perspectives })
+        });
 
-      const data = await response.json();
-      document.getElementById("outputBox").innerText = data.interpretation;
+        const data = await response.json();
+
+        document.getElementById("outputBox").innerText = data.interpretation || "No output from AI.";
+      } catch (err) {
+        console.error(err);
+        document.getElementById("outputBox").innerText = "❌ Error interpreting dream. Check backend.";
+      }
     }
   </script>
 </body>
 </html>
-
-👉 Do you want me to also write the collapsible output version (so each perspective comes in its own toggleable box), or do you want to first test this plain working version end-to-end?
