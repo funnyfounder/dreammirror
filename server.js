@@ -1,4 +1,3 @@
-
 import express from "express";
 import bodyParser from "body-parser";
 import fetch from "node-fetch";
@@ -8,11 +7,10 @@ import cors from "cors";
 dotenv.config();
 const app = express();
 app.use(bodyParser.json());
-app.use(cors()); // Allow requests from frontend
+app.use(cors());
 
 const HF_API_URL = "https://api-inference.huggingface.co/models/openai-community/gpt2";
 
-// Endpoint for dream interpretation
 app.post("/interpret", async (req, res) => {
   try {
     const { dream, perspectives } = req.body;
@@ -21,16 +19,16 @@ app.post("/interpret", async (req, res) => {
       return res.status(400).json({ error: "Dream text is required." });
     }
 
-    // Build prompt
     const prompt = `
 You are a Dream Interpretation Assistant.
 Interpret this dream under the following perspectives: ${perspectives.join(", ")}.
 Dream: ${dream}
 
-Return structured sections with headings for each perspective. Avoid repetition.
+Return structured sections with headings for each perspective in the format:
+[Perspective Name]:
+Interpretation text here.
     `;
 
-    // Call Hugging Face API
     const response = await fetch(HF_API_URL, {
       method: "POST",
       headers: {
@@ -40,15 +38,17 @@ Return structured sections with headings for each perspective. Avoid repetition.
       body: JSON.stringify({
         inputs: prompt,
         parameters: {
-          max_new_tokens: 150,
+          max_new_tokens: 200,
           temperature: 0.7,
         },
       }),
     });
 
     const data = await response.json();
+    let output = data[0]?.generated_text || "No interpretation generated.";
 
-    const output = data[0]?.generated_text || "No interpretation generated.";
+    // Optional: Clean up the output by trimming repeated prompt text
+    output = output.replace(prompt, "").trim();
 
     res.json({ interpretation: output });
   } catch (err) {
@@ -60,3 +60,4 @@ Return structured sections with headings for each perspective. Avoid repetition.
 app.listen(3000, () => {
   console.log("Server running on http://localhost:3000");
 });
+
