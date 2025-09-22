@@ -72,28 +72,39 @@
       const perspectives = Array.from(document.querySelectorAll('input[type=checkbox]:checked'))
                                 .map(cb => cb.value);
 
-      if (!dream) {
-        alert("Please type your dream first!");
-        return;
-      }
+async function interpretDream() {
+  const dream = document.getElementById("dreamInput").value;
+  const perspectives = Array.from(document.querySelectorAll('input[type=checkbox]:checked'))
+                            .map(cb => cb.value);
 
-      document.getElementById("outputBox").innerText = "⏳ Interpreting your dream...";
+  if (!dream) {
+    alert("Please type your dream first!");
+    return;
+  }
 
-      try {
-        const response = await fetch("http://localhost:3000/interpret", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ dream, perspectives })
-        });
+  const outputBox = document.getElementById("outputBox");
+  outputBox.innerHTML = "⏳ Interpreting your dream...";
 
-        const data = await response.json();
+  try {
+    const response = await fetch("http://localhost:3000/interpret", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dream, perspectives })
+    });
 
-        document.getElementById("outputBox").innerText = data.interpretation || "No output from AI.";
-      } catch (err) {
-        console.error(err);
-        document.getElementById("outputBox").innerText = "❌ Error interpreting dream. Check backend.";
-      }
-    }
+    const data = await response.json();
+    let text = data.interpretation || "No output from AI.";
+
+    // Convert lines like "[Perspective Name]:" to bold headings
+    const formatted = text.replace(/(\w[\w\s]+):/g, "<b>$1:</b>");
+
+    outputBox.innerHTML = formatted;
+  } catch (err) {
+    console.error(err);
+    outputBox.innerText = "❌ Error interpreting dream. Check backend.";
+  }
+}
+
   </script>
 </body>
 </html>
